@@ -3,200 +3,156 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>GridGuard — Resident App</title>
+<title>GridGuard — Eskom Key Device</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Share+Tech+Mono&display=swap');
-:root{--bg:#f8f9fa;--surf:#fff;--bord:#e5e7eb;--green:#166534;--gbg:#f0fdf4;--gbord:#bbf7d0;--red:#991b1b;--rbg:#fef2f2;--rbord:#fecaca;--amb:#92400e;--abg:#fffbeb;--abord:#fde68a;--pur:#6b21a8;--pbg:#faf5ff;--pbord:#e9d5ff;--tx:#111827;--mu:#6b7280;--sans:'Barlow',sans-serif;--mono:'Share Tech Mono',monospace;}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--tx);font-family:var(--sans);max-width:420px;margin:0 auto;min-height:100vh;}
-.hdr{background:#fff;border-bottom:1px solid var(--bord);padding:0;}
-.htop{padding:12px 17px;display:flex;align-items:center;justify-content:space-between;}
-.appname{font-size:16px;font-weight:800;color:var(--tx);}
-.appsub{font-size:10px;color:var(--mu);font-family:var(--mono);}
-.conn{display:flex;align-items:center;gap:5px;font-size:11px;color:#166534;background:var(--gbg);padding:3px 10px;border-radius:20px;}
-.dot{width:6px;height:6px;border-radius:50%;background:#22c55e;animation:blink 1.4s infinite;}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
-.hloc{background:var(--bg);padding:8px 17px;font-size:12px;color:var(--mu);border-top:1px solid var(--bord);}
-.main{padding:14px;display:flex;flex-direction:column;gap:12px;}
-/* Active alert banner */
-.alertbanner{border-radius:14px;border:2px solid var(--bord);overflow:hidden;display:none;animation:sdin .4s ease;}
-@keyframes sdin{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
-.alertbanner.show{display:block;}
-.alertbanner.crit{border-color:var(--rbord);}.alertbanner.warn{border-color:var(--abord);}.alertbanner.sec{border-color:var(--pbord);}.alertbanner.info{border-color:var(--gbord);}
-.abtop{padding:13px 15px;display:flex;align-items:center;gap:10px;}
-.abtop.crit{background:var(--rbg);}.abtop.warn{background:var(--abg);}.abtop.sec{background:var(--pbg);}.abtop.info{background:var(--gbg);}
-.abemoji{font-size:28px;}
-.abtitle{font-size:15px;font-weight:700;}.abtitle.crit{color:var(--red);}.abtitle.warn{color:var(--amb);}.abtitle.sec{color:var(--pur);}.abtitle.info{color:var(--green);}
-.abbody{font-size:12px;color:var(--mu);margin-top:3px;line-height:1.5;}
-.abticket{background:var(--surf);border-top:1px solid var(--bord);padding:11px 15px;display:grid;grid-template-columns:auto 1fr;gap:3px 11px;font-size:11px;}
-.tklbl{color:var(--mu);}.tkval{font-family:var(--mono);font-size:10px;}
-.tkstatus{margin-top:7px;grid-column:1/-1;display:inline-flex;align-items:center;gap:5px;background:var(--gbg);border:1px solid var(--gbord);color:var(--green);font-size:11px;font-weight:600;padding:4px 11px;border-radius:20px;width:fit-content;}
-/* Map placeholder */
-.mapbox{background:var(--surf);border:1px solid var(--bord);border-radius:14px;overflow:hidden;display:none;}
-.mapbox.show{display:block;}
-.maphdr{padding:10px 14px;border-bottom:1px solid var(--bord);font-size:12px;font-weight:600;color:var(--tx);display:flex;align-items:center;gap:7px;}
-.maparea{position:relative;height:200px;background:linear-gradient(135deg,#e8f4e8 0%,#d4ecd4 50%,#c8e4c8 100%);display:flex;align-items:center;justify-content:center;}
-.mapgrid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,0,0,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.06) 1px,transparent 1px);background-size:30px 30px;}
-.maproads{position:absolute;inset:0;}
-.maproads::before{content:'';position:absolute;left:0;right:0;top:50%;height:5px;background:rgba(255,255,255,.8);transform:translateY(-50%);}
-.maproads::after{content:'';position:absolute;top:0;bottom:0;left:40%;width:5px;background:rgba(255,255,255,.8);}
-.mappin{position:absolute;top:50%;left:40%;transform:translate(-50%,-100%);font-size:32px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.3));animation:bounce .8s ease infinite alternate;}
-@keyframes bounce{from{transform:translate(-50%,-100%)}to{transform:translate(-50%,-120%)}}
-.maplbl{position:absolute;background:#fff;border:1px solid var(--bord);border-radius:8px;padding:5px 10px;font-size:11px;font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,.1);}
-.mapcoords{position:absolute;bottom:8px;right:10px;font-family:var(--mono);font-size:9px;color:var(--mu);background:rgba(255,255,255,.8);padding:3px 7px;border-radius:4px;}
-/* Resident push notification mock */
-.pushnotif{background:var(--surf);border:1px solid var(--bord);border-radius:14px;padding:13px 15px;display:none;}
-.pushnotif.show{display:block;}
-.pnhdr{display:flex;align-items:center;gap:7px;margin-bottom:9px;}
-.pnicon{font-size:18px;}
-.pntitle{font-size:12px;font-weight:600;}
-.pnsub{font-size:11px;color:var(--mu);}
-.phoneframe{background:#1a1a1a;border-radius:14px;padding:12px;}
-.pncard{background:#2a2a2a;border-radius:9px;padding:9px 11px;display:flex;gap:9px;align-items:flex-start;}
-.pnapp{width:30px;height:30px;background:#c8102e;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
-.pntxt-title{font-size:12px;font-weight:600;color:#fff;}
-.pntxt-body{font-size:11px;color:#aaa;margin-top:2px;line-height:1.4;}
-.pntxt-time{font-size:10px;color:#666;margin-top:3px;font-family:var(--mono);}
-/* Relay message */
-.relaymsg{background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px 15px;display:none;animation:sdin .3s ease;}
-.relaymsg.show{display:block;}
-.rmlbl{font-size:11px;font-weight:600;color:#1e40af;margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em;}
-.rmtxt{font-size:15px;font-weight:700;color:#1e40af;}
-.rmwho{font-size:11px;color:var(--mu);margin-top:3px;font-family:var(--mono);}
-/* History */
-.histbox{background:var(--surf);border:1px solid var(--bord);border-radius:14px;overflow:hidden;}
-.histhdr{padding:11px 15px;border-bottom:1px solid var(--bord);font-size:12px;font-weight:600;color:var(--mu);display:flex;justify-content:space-between;text-transform:uppercase;letter-spacing:.04em;}
-.histfeed{padding:9px;display:flex;flex-direction:column;gap:5px;max-height:240px;overflow-y:auto;}
-.hitem{display:flex;gap:8px;align-items:flex-start;padding:8px 9px;border-radius:9px;border-left:3px solid var(--bord);background:var(--bg);animation:ein .3s ease;}
-@keyframes ein{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
-.hitem.crit{border-left-color:#ef4444;}.hitem.warn{border-left-color:#f59e0b;}.hitem.sec{border-left-color:#a855f7;}.hitem.info{border-left-color:#22c55e;}
-.htype{font-size:12px;font-weight:600;}.hdet{font-size:11px;color:var(--mu);margin-top:2px;line-height:1.4;}
-.hmeta{font-size:10px;color:#aaa;margin-top:2px;font-family:var(--mono);display:flex;gap:6px;flex-wrap:wrap;}
-.hbadge{font-size:9px;padding:1px 5px;border-radius:3px;font-weight:600;}
-.hbadge.crit{background:var(--rbg);color:var(--red);}.hbadge.warn{background:var(--abg);color:var(--amb);}
-.hbadge.sec{background:var(--pbg);color:var(--pur);}.hbadge.info{background:var(--gbg);color:var(--green);}
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow:wght@400;500;600;700;800&display=swap');
+:root{--bg:#0d1117;--surf:#161b22;--bord:#21262d;--green:#3fb950;--gbg:#0d2818;--red:#f85149;--rbg:#2d0f0f;--amb:#e3b341;--abg:#2d1f00;--blue:#58a6ff;--bbg:#0d1f35;--pur:#bc8cff;--pbg:#1a0d2d;--tx:#c9d1d9;--mu:#484f58;--mono:'Share Tech Mono',monospace;--sans:'Barlow',sans-serif;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{background:var(--bg);color:var(--tx);font-family:var(--sans);min-height:100vh;display:flex;flex-direction:column;max-width:420px;margin:0 auto;}
+.topbar{background:var(--surf);border-bottom:1px solid var(--bord);padding:13px 17px;display:flex;align-items:center;justify-content:space-between;}
+.dname{font-family:var(--mono);font-size:12px;color:var(--green);letter-spacing:1px;}.dsub{font-family:var(--mono);font-size:10px;color:var(--mu);margin-top:2px;}
+.sig{display:flex;gap:3px;align-items:flex-end;}
+.sb{width:4px;background:var(--green);border-radius:1px;}
+.main{flex:1;padding:18px 15px;display:flex;flex-direction:column;gap:14px;}
+/* NFC Zone */
+.nfcz{background:var(--surf);border:2px dashed var(--bord);border-radius:18px;padding:28px 18px;text-align:center;cursor:pointer;transition:all .2s;user-select:none;}
+.nfcz:active{transform:scale(.97);}
+.nfcz.authed{border-color:var(--green);background:var(--gbg);box-shadow:0 0 30px rgba(63,185,80,.12);}
+.nfcz.locked{border-color:var(--red);background:var(--rbg);}
+.nfcicon{font-size:52px;margin-bottom:12px;}
+.nfctitle{font-family:var(--mono);font-size:14px;letter-spacing:1px;margin-bottom:5px;}
+.nfcsub{font-size:12px;color:var(--mu);}
+/* Auth timer */
+.authtimer{display:none;background:var(--gbg);border:1px solid var(--green);border-radius:12px;padding:13px 16px;text-align:center;}
+.authtimer.show{display:block;}
+.atlbl{font-family:var(--mono);font-size:10px;color:var(--green);letter-spacing:2px;margin-bottom:5px;}
+.atval{font-family:var(--mono);font-size:34px;color:var(--green);}
+.atbg{background:var(--bord);height:4px;border-radius:2px;margin-top:9px;overflow:hidden;}
+.atbar{height:4px;background:var(--green);border-radius:2px;transition:width 1s linear;}
+/* Relay */
+.relsec{background:var(--surf);border:1px solid var(--bord);border-radius:14px;overflow:hidden;}
+.relhdr{padding:11px 15px;border-bottom:1px solid var(--bord);font-family:var(--mono);font-size:10px;color:var(--mu);letter-spacing:1px;}
+.relbtns{padding:11px;display:flex;flex-direction:column;gap:7px;}
+.relbtn{width:100%;padding:12px 15px;background:rgba(255,255,255,.03);border:1px solid var(--bord);border-radius:9px;color:var(--tx);font-family:var(--sans);font-size:13px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:9px;transition:all .15s;}
+.relbtn:active{transform:scale(.98);}
+.relbtn.sel,.relbtn:hover{background:var(--bbg);border-color:var(--blue);color:var(--blue);}
+.ri{font-size:17px;}
+.sendbtn{margin:0 11px 11px;width:calc(100% - 22px);padding:13px;background:var(--blue);border:none;border-radius:9px;color:#000;font-family:var(--sans);font-size:14px;font-weight:700;cursor:pointer;display:none;transition:all .15s;}
+.sendbtn:active{transform:scale(.97);}
+.sendbtn.show{display:block;}
+/* Incoming */
+.incoming{background:var(--surf);border:1px solid var(--bord);border-radius:14px;overflow:hidden;}
+.inhdr{padding:11px 15px;border-bottom:1px solid var(--bord);display:flex;align-items:center;justify-content:space-between;}
+.intitle{font-family:var(--mono);font-size:10px;color:var(--mu);letter-spacing:1px;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:blink 1.4s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.infeed{padding:9px;display:flex;flex-direction:column;gap:5px;max-height:190px;overflow-y:auto;}
+.initem{border-radius:9px;padding:9px 11px;border:1px solid var(--bord);animation:popin .3s ease;}
+@keyframes popin{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.initem.crit{background:var(--rbg);border-color:var(--red);}
+.initem.warn{background:var(--abg);border-color:var(--amb);}
+.initem.sec{background:var(--pbg);border-color:var(--pur);}
+.initem.info{background:var(--gbg);border-color:var(--green);}
+.itype{font-family:var(--mono);font-size:11px;font-weight:600;margin-bottom:3px;}
+.itype.crit{color:var(--red);}.itype.warn{color:var(--amb);}.itype.sec{color:var(--pur);}.itype.info{color:var(--green);}
+.idet{font-size:11px;line-height:1.4;}.imeta{font-size:10px;color:var(--mu);margin-top:3px;font-family:var(--mono);}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--green);color:#000;font-family:var(--mono);font-size:12px;padding:11px 22px;border-radius:28px;transition:transform .3s;white-space:nowrap;z-index:100;}
+.toast.show{transform:translateX(-50%) translateY(0);}
 </style>
 </head>
 <body>
-<div class="hdr">
-  <div class="htop">
-    <div><div class="appname">⚡ GridGuard</div><div class="appsub">RESIDENT ALERTS — SOWETO ZONE 4</div></div>
-    <div class="conn"><div class="dot"></div>Live</div>
-  </div>
-  <div class="hloc">📍 Dube St, Soweto · 24 transformers monitored in your area</div>
+<div class="topbar">
+  <div><div class="dname">⚡ GRIDGUARD KEY</div><div class="dsub">ESKOM TECH DEVICE · EK2847</div></div>
+  <div class="sig"><div class="sb" style="height:6px"></div><div class="sb" style="height:10px"></div><div class="sb" style="height:14px"></div><div class="sb" style="height:18px"></div></div>
 </div>
 <div class="main">
-  <!-- Active Alert -->
-  <div class="alertbanner" id="alertbanner">
-    <div class="abtop" id="abtop">
-      <div class="abemoji" id="abemoji">⚡</div>
-      <div><div class="abtitle" id="abtitle">Alert</div><div class="abbody" id="abbody">—</div></div>
+  <div class="nfcz" id="nfcz" onclick="tapKey()">
+    <div class="nfcicon" id="nfcicon">📲</div>
+    <div class="nfctitle" id="nfctitle">TAP TO AUTHENTICATE</div>
+    <div class="nfcsub" id="nfcsub">Hold near transformer NFC reader</div>
+  </div>
+  <div class="authtimer" id="authtimer">
+    <div class="atlbl">AUTH WINDOW OPEN</div>
+    <div class="atval" id="atval">30</div>
+    <div class="atbg"><div class="atbar" id="atbar" style="width:100%"></div></div>
+  </div>
+  <div class="relsec">
+    <div class="relhdr">// RELAY MESSAGE TO TRANSFORMER UNIT & AREA</div>
+    <div class="relbtns">
+      <button class="relbtn" onclick="selRelay(this,'Routine check-up')"><span class="ri">🔍</span>Routine check-up</button>
+      <button class="relbtn" onclick="selRelay(this,'Scheduled maintenance')"><span class="ri">🔧</span>Scheduled maintenance</button>
+      <button class="relbtn" onclick="selRelay(this,'Emergency repair')"><span class="ri">⚠️</span>Emergency repair</button>
+      <button class="relbtn" onclick="selRelay(this,'Safety inspection')"><span class="ri">🛡️</span>Safety inspection</button>
     </div>
-    <div class="abticket" id="abticket"></div>
+    <button class="sendbtn" id="sendbtn" onclick="sendRelay()">RELAY TO AREA →</button>
   </div>
-  <!-- Map -->
-  <div class="mapbox" id="mapbox">
-    <div class="maphdr">📍 Transformer location — TRF-SW04-A</div>
-    <div class="maparea">
-      <div class="mapgrid"></div>
-      <div class="maproads"></div>
-      <div class="mappin" id="mappin">🔴</div>
-      <div class="maplbl" style="top:15px;left:12px;color:#166534">Soweto Zone 4</div>
-      <div class="maplbl" style="top:15px;right:12px;font-size:10px" id="maplbl">TRF-SW04-A</div>
-      <div class="maplbl" style="bottom:35px;left:12px;font-size:10px">Dube St</div>
-      <div class="mapcoords">-26.2485, 27.8543</div>
-    </div>
-  </div>
-  <!-- Push notif -->
-  <div class="pushnotif" id="pushnotif">
-    <div class="pnhdr"><div class="pnicon">📱</div><div><div class="pntitle">Push notification sent to residents</div><div class="pnsub">Everyone in Soweto Zone 4 received this</div></div></div>
-    <div class="phoneframe">
-      <div class="pncard">
-        <div class="pnapp">⚡</div>
-        <div>
-          <div class="pntxt-title" id="pntitle">GridGuard</div>
-          <div class="pntxt-body" id="pnbody">—</div>
-          <div class="pntxt-time" id="pntime">now</div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!-- Relay message -->
-  <div class="relaymsg" id="relaymsg">
-    <div class="rmlbl">🔑 Message from Eskom Technician</div>
-    <div class="rmtxt" id="rmtxt">—</div>
-    <div class="rmwho" id="rmwho">—</div>
-  </div>
-  <!-- History -->
-  <div class="histbox">
-    <div class="histhdr"><span>Alert History</span><span id="hcnt" style="font-weight:400">0 alerts</span></div>
-    <div class="histfeed" id="histfeed"><div style="text-align:center;padding:18px;font-size:12px;color:var(--mu);font-family:var(--mono)">Listening for updates...</div></div>
+  <div class="incoming">
+    <div class="inhdr"><span class="intitle">// INCOMING FROM TRANSFORMER</span><div class="dot"></div></div>
+    <div class="infeed" id="infeed"><div style="text-align:center;padding:15px;font-family:var(--mono);font-size:11px;color:var(--mu)">Listening for events...</div></div>
   </div>
 </div>
+<div class="toast" id="toast"></div>
 <script>
 const ch = new BroadcastChannel('gridguard_v2');
-let hcount=0;
-const sevMap={CRITICAL:'crit',HIGH:'warn',MEDIUM:'warn',INFO:'info',crit:'crit',warn:'warn',sec:'sec',info:'info'};
-function getSev(e){const s=(e.severity||e.sev||'');return sevMap[s.toUpperCase()]||sevMap[s.toLowerCase()]||'info';}
+let selMsg = null, authActive = false, timerInt = null;
 
-function handleEvent(ev) {
-  const sev=getSev(ev);
-  const rm=ev.residentMsg||{title:'GridGuard Update',body:'Update on transformer in your area.'};
-  // Alert banner
-  const banner=document.getElementById('alertbanner');
-  banner.className='alertbanner show '+sev;
-  document.getElementById('abtop').className='abtop '+sev;
-  document.getElementById('abemoji').textContent=ev.emoji||'⚡';
-  document.getElementById('abtitle').className='abtitle '+sev;
-  document.getElementById('abtitle').textContent=(ev.alertType||'').replace(/_/g,' ');
-  document.getElementById('abbody').textContent=rm.body;
-  document.getElementById('abticket').innerHTML=`
-    <span class="tklbl">Ticket</span><span class="tkval">${ev.ticketId||'GG-'+Date.now()}</span>
-    <span class="tklbl">Unit</span><span class="tkval">${ev.transformerId||'TRF-SW04-A'}</span>
-    <span class="tklbl">Zone</span><span class="tkval">${ev.zone||'Soweto Zone 4'}</span>
-    <span class="tklbl">Time</span><span class="tkval">${ev.timestamp||new Date().toTimeString().slice(0,8)}</span>
-    <div class="tkstatus">✓ Eskom notified — ticket auto-raised</div>
-  `;
-  // Map
-  document.getElementById('mapbox').className='mapbox show';
-  const pin=document.getElementById('mappin');
-  pin.textContent=sev==='crit'?'🔴':sev==='warn'?'🟡':sev==='sec'?'🟣':'🟢';
-  document.getElementById('maplbl').textContent=ev.alertType?ev.alertType.replace(/_/g,' '):'TRF-SW04-A';
-  // Push notif
-  document.getElementById('pushnotif').className='pushnotif show';
-  document.getElementById('pntitle').textContent=rm.title;
-  document.getElementById('pnbody').textContent=rm.body;
-  document.getElementById('pntime').textContent='Delivered '+new Date().toTimeString().slice(0,8)+' · Zone 4';
-  // Vibrate
-  if(navigator.vibrate&&(sev==='crit'||sev==='sec'))navigator.vibrate([300,100,300]);
-  addHistory(ev,sev);
+function tapKey() {
+  if(authActive) return; authActive=true;
+  const z=document.getElementById('nfcz'), icon=document.getElementById('nfcicon'),
+        title=document.getElementById('nfctitle'), sub=document.getElementById('nfcsub');
+  z.classList.add('authed'); icon.textContent='✅';
+  title.textContent='AUTHENTICATED'; sub.textContent='Tech EK2847 · Access granted';
+  document.getElementById('authtimer').classList.add('show');
+  ch.postMessage({type:'RFID_AUTH',techId:'EK2847',time:Date.now()});
+  localStorage.setItem('gg_rfid',JSON.stringify({techId:'EK2847',time:Date.now()}));
+  showToast('✓ Auth broadcast to all devices');
+  let secs=30;
+  timerInt = setInterval(()=>{
+    secs--; document.getElementById('atval').textContent=secs;
+    document.getElementById('atbar').style.width=(secs/30*100)+'%';
+    if(secs<=0){
+      clearInterval(timerInt); authActive=false;
+      z.classList.remove('authed'); icon.textContent='📲';
+      title.textContent='TAP TO AUTHENTICATE'; sub.textContent='Hold near transformer NFC reader';
+      document.getElementById('authtimer').classList.remove('show');
+      document.getElementById('atbar').style.width='100%';
+    }
+  },1000);
 }
 
-function handleRelay(d){
-  document.getElementById('relaymsg').className='relaymsg show';
-  document.getElementById('rmtxt').textContent=d.message;
-  document.getElementById('rmwho').textContent='Tech '+d.techId+' · '+d.transformerId+' · '+d.timestamp;
-  addHistory({alertType:'RELAY_FROM_ESKOM',message:d.message,transformerId:d.transformerId,timestamp:d.timestamp},'info');
+function selRelay(btn, msg) {
+  document.querySelectorAll('.relbtn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel'); selMsg=msg;
+  document.getElementById('sendbtn').classList.add('show');
 }
 
-function addHistory(ev,sev){
-  hcount++;document.getElementById('hcnt').textContent=hcount+' alert'+(hcount!==1?'s':'');
-  const feed=document.getElementById('histfeed');
+function sendRelay() {
+  if(!selMsg) return;
+  const p={type:'RELAY_MESSAGE',message:selMsg,techId:'EK2847',transformerId:'TRF-SW04-A',timestamp:new Date().toTimeString().slice(0,8)};
+  ch.postMessage(p); localStorage.setItem('gg_relay',JSON.stringify(p));
+  showToast('✓ "'+selMsg+'" relayed to area');
+  document.querySelectorAll('.relbtn').forEach(b=>b.classList.remove('sel'));
+  document.getElementById('sendbtn').classList.remove('show'); selMsg=null;
+}
+
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+
+function addIn(event){
+  const feed=document.getElementById('infeed');
   const ph=feed.querySelector('[style*="Listening"]');if(ph)ph.remove();
-  const el=document.createElement('div');el.className='hitem '+sev;
-  el.innerHTML=`<div style="flex:1"><div class="htype">${(ev.emoji||'')} ${(ev.alertType||'').replace(/_/g,' ')}</div><div class="hdet">${ev.message||''}</div><div class="hmeta"><span class="hbadge ${sev}">${sev.toUpperCase()}</span><span>${ev.transformerId||'TRF-SW04-A'}</span><span>${ev.timestamp||new Date().toTimeString().slice(0,8)}</span></div></div>`;
+  const sm={CRITICAL:'crit','HIGH':'warn','MEDIUM':'warn','INFO':'info',crit:'crit',warn:'warn',sec:'sec',info:'info'};
+  const sev=sm[(event.severity||event.sev||'').toUpperCase()]||sm[(event.severity||event.sev||'').toLowerCase()]||'info';
+  const el=document.createElement('div');el.className='initem '+sev;
+  el.innerHTML=`<div class="itype ${sev}">${(event.alertType||event.type||'').replace(/_/g,' ')}</div><div class="idet">${event.message||event.msg||''}</div><div class="imeta">${event.transformerId||'TRF-SW04-A'} · ${event.timestamp||new Date().toTimeString().slice(0,8)}</div>`;
   feed.insertBefore(el,feed.firstChild);
+  if((sev==='crit'||sev==='sec')&&navigator.vibrate)navigator.vibrate([200,100,200]);
 }
 
-ch.onmessage=e=>{
-  if(e.data.type==='GRID_EVENT')handleEvent(e.data.event);
-  else if(e.data.type==='RELAY_MESSAGE')handleRelay(e.data);
-};
+ch.onmessage=e=>{if(e.data.type==='GRID_EVENT')addIn(e.data.event);};
 window.addEventListener('storage',e=>{
-  if(e.key==='gg_last'){try{handleEvent(JSON.parse(e.newValue));}catch(err){}}
-  if(e.key==='gg_relay'){try{handleRelay(JSON.parse(e.newValue));}catch(err){}}
+  if(e.key==='gg_last'){try{addIn(JSON.parse(e.newValue));}catch(err){}}
 });
-try{const ex=JSON.parse(localStorage.getItem('gg_events')||'[]');ex.slice(0,3).reverse().forEach(e=>handleEvent(e));}catch(e){}
+try{const ex=JSON.parse(localStorage.getItem('gg_events')||'[]');ex.slice(0,3).reverse().forEach(addIn);}catch(e){}
 </script>
 </body>
 </html>
