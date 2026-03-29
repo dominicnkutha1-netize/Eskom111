@@ -2,157 +2,148 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>GridGuard — Eskom Key Device</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GridGuard — Demo Hub</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow:wght@400;500;600;700;800&display=swap');
-:root{--bg:#0d1117;--surf:#161b22;--bord:#21262d;--green:#3fb950;--gbg:#0d2818;--red:#f85149;--rbg:#2d0f0f;--amb:#e3b341;--abg:#2d1f00;--blue:#58a6ff;--bbg:#0d1f35;--pur:#bc8cff;--pbg:#1a0d2d;--tx:#c9d1d9;--mu:#484f58;--mono:'Share Tech Mono',monospace;--sans:'Barlow',sans-serif;}
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-body{background:var(--bg);color:var(--tx);font-family:var(--sans);min-height:100vh;display:flex;flex-direction:column;max-width:420px;margin:0 auto;}
-.topbar{background:var(--surf);border-bottom:1px solid var(--bord);padding:13px 17px;display:flex;align-items:center;justify-content:space-between;}
-.dname{font-family:var(--mono);font-size:12px;color:var(--green);letter-spacing:1px;}.dsub{font-family:var(--mono);font-size:10px;color:var(--mu);margin-top:2px;}
-.sig{display:flex;gap:3px;align-items:flex-end;}
-.sb{width:4px;background:var(--green);border-radius:1px;}
-.main{flex:1;padding:18px 15px;display:flex;flex-direction:column;gap:14px;}
-/* NFC Zone */
-.nfcz{background:var(--surf);border:2px dashed var(--bord);border-radius:18px;padding:28px 18px;text-align:center;cursor:pointer;transition:all .2s;user-select:none;}
-.nfcz:active{transform:scale(.97);}
-.nfcz.authed{border-color:var(--green);background:var(--gbg);box-shadow:0 0 30px rgba(63,185,80,.12);}
-.nfcz.locked{border-color:var(--red);background:var(--rbg);}
-.nfcicon{font-size:52px;margin-bottom:12px;}
-.nfctitle{font-family:var(--mono);font-size:14px;letter-spacing:1px;margin-bottom:5px;}
-.nfcsub{font-size:12px;color:var(--mu);}
-/* Auth timer */
-.authtimer{display:none;background:var(--gbg);border:1px solid var(--green);border-radius:12px;padding:13px 16px;text-align:center;}
-.authtimer.show{display:block;}
-.atlbl{font-family:var(--mono);font-size:10px;color:var(--green);letter-spacing:2px;margin-bottom:5px;}
-.atval{font-family:var(--mono);font-size:34px;color:var(--green);}
-.atbg{background:var(--bord);height:4px;border-radius:2px;margin-top:9px;overflow:hidden;}
-.atbar{height:4px;background:var(--green);border-radius:2px;transition:width 1s linear;}
-/* Relay */
-.relsec{background:var(--surf);border:1px solid var(--bord);border-radius:14px;overflow:hidden;}
-.relhdr{padding:11px 15px;border-bottom:1px solid var(--bord);font-family:var(--mono);font-size:10px;color:var(--mu);letter-spacing:1px;}
-.relbtns{padding:11px;display:flex;flex-direction:column;gap:7px;}
-.relbtn{width:100%;padding:12px 15px;background:rgba(255,255,255,.03);border:1px solid var(--bord);border-radius:9px;color:var(--tx);font-family:var(--sans);font-size:13px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:9px;transition:all .15s;}
-.relbtn:active{transform:scale(.98);}
-.relbtn.sel,.relbtn:hover{background:var(--bbg);border-color:var(--blue);color:var(--blue);}
-.ri{font-size:17px;}
-.sendbtn{margin:0 11px 11px;width:calc(100% - 22px);padding:13px;background:var(--blue);border:none;border-radius:9px;color:#000;font-family:var(--sans);font-size:14px;font-weight:700;cursor:pointer;display:none;transition:all .15s;}
-.sendbtn:active{transform:scale(.97);}
-.sendbtn.show{display:block;}
-/* Incoming */
-.incoming{background:var(--surf);border:1px solid var(--bord);border-radius:14px;overflow:hidden;}
-.inhdr{padding:11px 15px;border-bottom:1px solid var(--bord);display:flex;align-items:center;justify-content:space-between;}
-.intitle{font-family:var(--mono);font-size:10px;color:var(--mu);letter-spacing:1px;}
-.dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:blink 1.4s infinite;}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-.infeed{padding:9px;display:flex;flex-direction:column;gap:5px;max-height:190px;overflow-y:auto;}
-.initem{border-radius:9px;padding:9px 11px;border:1px solid var(--bord);animation:popin .3s ease;}
-@keyframes popin{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
-.initem.crit{background:var(--rbg);border-color:var(--red);}
-.initem.warn{background:var(--abg);border-color:var(--amb);}
-.initem.sec{background:var(--pbg);border-color:var(--pur);}
-.initem.info{background:var(--gbg);border-color:var(--green);}
-.itype{font-family:var(--mono);font-size:11px;font-weight:600;margin-bottom:3px;}
-.itype.crit{color:var(--red);}.itype.warn{color:var(--amb);}.itype.sec{color:var(--pur);}.itype.info{color:var(--green);}
-.idet{font-size:11px;line-height:1.4;}.imeta{font-size:10px;color:var(--mu);margin-top:3px;font-family:var(--mono);}
-.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--green);color:#000;font-family:var(--mono);font-size:12px;padding:11px 22px;border-radius:28px;transition:transform .3s;white-space:nowrap;z-index:100;}
-.toast.show{transform:translateX(-50%) translateY(0);}
+:root{--bg:#0a0e14;--surf:#111722;--bord:#1e2a3a;--green:#00C853;--gdim:#071a0f;--tx:#e2e8f0;--mu:#64748b;--mono:'Share Tech Mono',monospace;--sans:'Barlow',sans-serif;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--tx);font-family:var(--sans);min-height:100vh;padding:28px 20px;}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.035) 2px,rgba(0,0,0,.035) 4px);pointer-events:none;z-index:999;}
+
+.logo-wrap{text-align:center;margin-bottom:32px;}
+.logo{font-family:var(--mono);color:var(--green);font-size:28px;letter-spacing:5px;margin-bottom:4px;}
+.logo-sub{font-family:var(--mono);font-size:11px;color:var(--mu);letter-spacing:2px;margin-bottom:14px;}
+.team-names{font-family:var(--mono);font-size:10px;color:var(--mu);line-height:1.8;background:var(--surf);border:1px solid var(--bord);border-radius:10px;padding:12px 20px;display:inline-block;}
+.team-names strong{color:var(--green);}
+
+.section-title{font-family:var(--mono);font-size:11px;color:var(--mu);letter-spacing:2px;margin-bottom:14px;text-transform:uppercase;}
+
+/* App grid */
+.apps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:30px;}
+.app-card{background:var(--surf);border:1px solid var(--bord);border-radius:14px;padding:22px;text-decoration:none;color:var(--tx);transition:all .2s;display:block;position:relative;}
+.app-card:hover{transform:translateY(-2px);border-color:var(--green);}
+.app-card:active{transform:scale(.98);}
+.app-num{font-family:var(--mono);font-size:10px;color:var(--green);letter-spacing:2px;margin-bottom:10px;}
+.app-icon{font-size:32px;margin-bottom:10px;}
+.app-title{font-size:16px;font-weight:800;margin-bottom:5px;}
+.app-sub{font-size:12px;color:var(--mu);line-height:1.5;margin-bottom:12px;}
+.app-tag{font-family:var(--mono);font-size:10px;padding:4px 10px;border-radius:20px;border:1px solid var(--bord);color:var(--mu);display:inline-block;}
+.app-card.t .app-tag{border-color:#FFB800;color:#FFB800;}
+.app-card.k .app-tag{border-color:#3B82F6;color:#3B82F6;}
+.app-card.r .app-tag{border-color:#00C853;color:#00C853;}
+.app-card.e .app-tag{border-color:#C8102E;color:#C8102E;}
+.app-card.c .app-tag{border-color:#A855F7;color:#A855F7;}
+
+/* Instructions */
+.steps-box{background:var(--surf);border:1px solid var(--bord);border-radius:14px;padding:22px;margin-bottom:20px;}
+.step{display:flex;gap:12px;margin-bottom:12px;align-items:flex-start;}
+.step:last-child{margin-bottom:0;}
+.step-n{width:26px;height:26px;border-radius:50%;border:1px solid var(--bord);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;color:var(--green);flex-shrink:0;}
+.step-t{font-size:13px;line-height:1.5;padding-top:4px;}
+.step-t strong{color:var(--green);}
+.step-t em{color:#FFB800;font-style:normal;}
+
+/* Quick test buttons */
+.test-strip{background:var(--gdim);border:1px solid var(--green);border-radius:12px;padding:16px 18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.test-lbl{font-family:var(--mono);font-size:10px;color:var(--green);letter-spacing:1px;flex-shrink:0;}
+.tbtn{font-family:var(--mono);font-size:10px;padding:6px 12px;border-radius:6px;background:rgba(0,200,83,.1);border:1px solid var(--green);color:var(--green);cursor:pointer;transition:all .15s;}
+.tbtn:hover{background:rgba(0,200,83,.25);}
+.tbtn.red{background:rgba(255,59,59,.1);border-color:#FF3B3B;color:#FF3B3B;}
+.tbtn.red:hover{background:rgba(255,59,59,.25);}
+.tbtn.amb{background:rgba(255,184,0,.1);border-color:#FFB800;color:#FFB800;}
+.tbtn.pur{background:rgba(168,85,247,.1);border-color:#A855F7;color:#A855F7;}
+.toast-bar{height:36px;display:flex;align-items:center;margin-top:12px;font-family:var(--mono);font-size:11px;color:var(--mu);}
+.toast-text{color:var(--green);margin-left:6px;}
 </style>
 </head>
 <body>
-<div class="topbar">
-  <div><div class="dname">⚡ GRIDGUARD KEY</div><div class="dsub">ESKOM TECH DEVICE · EK2847</div></div>
-  <div class="sig"><div class="sb" style="height:6px"></div><div class="sb" style="height:10px"></div><div class="sb" style="height:14px"></div><div class="sb" style="height:18px"></div></div>
-</div>
-<div class="main">
-  <div class="nfcz" id="nfcz" onclick="tapKey()">
-    <div class="nfcicon" id="nfcicon">📲</div>
-    <div class="nfctitle" id="nfctitle">TAP TO AUTHENTICATE</div>
-    <div class="nfcsub" id="nfcsub">Hold near transformer NFC reader</div>
-  </div>
-  <div class="authtimer" id="authtimer">
-    <div class="atlbl">AUTH WINDOW OPEN</div>
-    <div class="atval" id="atval">30</div>
-    <div class="atbg"><div class="atbar" id="atbar" style="width:100%"></div></div>
-  </div>
-  <div class="relsec">
-    <div class="relhdr">// RELAY MESSAGE TO TRANSFORMER UNIT & AREA</div>
-    <div class="relbtns">
-      <button class="relbtn" onclick="selRelay(this,'Routine check-up')"><span class="ri">🔍</span>Routine check-up</button>
-      <button class="relbtn" onclick="selRelay(this,'Scheduled maintenance')"><span class="ri">🔧</span>Scheduled maintenance</button>
-      <button class="relbtn" onclick="selRelay(this,'Emergency repair')"><span class="ri">⚠️</span>Emergency repair</button>
-      <button class="relbtn" onclick="selRelay(this,'Safety inspection')"><span class="ri">🛡️</span>Safety inspection</button>
-    </div>
-    <button class="sendbtn" id="sendbtn" onclick="sendRelay()">RELAY TO AREA →</button>
-  </div>
-  <div class="incoming">
-    <div class="inhdr"><span class="intitle">// INCOMING FROM TRANSFORMER</span><div class="dot"></div></div>
-    <div class="infeed" id="infeed"><div style="text-align:center;padding:15px;font-family:var(--mono);font-size:11px;color:var(--mu)">Listening for events...</div></div>
+
+<div class="logo-wrap">
+  <div class="logo">⚡ GRIDGUARD</div>
+  <div class="logo-sub">HACKATHON 2026 · ESKOM INFRASTRUCTURE CHALLENGE · GAUTENG</div>
+  <div class="team-names">
+    <strong>Team Members:</strong> Dominic Nkutha · Leilt Getachew · Nektaria Keletso Nchabeleng<br>
+    Molemo Langrish · Precioso Mabassa · Njabulo Sithole · Thando Zwane
   </div>
 </div>
-<div class="toast" id="toast"></div>
+
+<div class="section-title">// Open each app on a different device</div>
+<div class="apps">
+  <a class="app-card t" href="transformer/index.html">
+    <div class="app-num">// APP 01</div>
+    <div class="app-icon">💻</div>
+    <div class="app-title">Transformer</div>
+    <div class="app-sub">IoT device simulator. Trigger all fault scenarios. Fires real-time alerts to all other apps.</div>
+    <div class="app-tag">LAPTOP</div>
+  </a>
+  <a class="app-card k" href="key/index.html">
+    <div class="app-num">// APP 02</div>
+    <div class="app-icon">🔑</div>
+    <div class="app-title">Eskom Key</div>
+    <div class="app-sub">RFID key device. Tap to authenticate. Relay messages to residents in the area.</div>
+    <div class="app-tag">PHONE 1</div>
+  </a>
+  <a class="app-card r" href="resident/index.html">
+    <div class="app-num">// APP 03</div>
+    <div class="app-icon">📱</div>
+    <div class="app-title">Resident App</div>
+    <div class="app-sub">What civilians see. Push notifications, fault status, map pin. Vibrates on critical alerts.</div>
+    <div class="app-tag">PHONE 2</div>
+  </a>
+  <a class="app-card e" href="eskom/index.html">
+    <div class="app-num">// APP 04</div>
+    <div class="app-icon">🖥️</div>
+    <div class="app-title">Eskom Ops</div>
+    <div class="app-sub">Eskom control view. Live map, auto-tickets, sensor readings, full alert feed with GPS.</div>
+    <div class="app-tag">PHONE 3 / PROJECTOR</div>
+  </a>
+  <a class="app-card c" href="controlroom/index.html">
+    <div class="app-num">// APP 05</div>
+    <div class="app-icon">🏢</div>
+    <div class="app-title">Control Room</div>
+    <div class="app-sub">National grid overview. All 3 device types shown. Stats, coverage map, team dispatch.</div>
+    <div class="app-tag">PHONE 4 / LAPTOP TAB</div>
+  </a>
+</div>
+
+<div class="section-title">// Quickfire test — fire events without opening transformer app</div>
+<div class="test-strip">
+  <div class="test-lbl">FIRE EVENT →</div>
+  <button class="tbtn" onclick="fire('maint')">🔧 Maintenance</button>
+  <button class="tbtn amb" onclick="fire('trip')">⚡ Breaker Trip</button>
+  <button class="tbtn red" onclick="fire('blown')">💥 Transformer Blown</button>
+  <button class="tbtn pur" onclick="fire('tamper_transformer')">🚨 Tamper — Transformer</button>
+  <button class="tbtn pur" onclick="fire('tamper_danger')">⚠️ Tamper — Danger Box</button>
+  <button class="tbtn amb" onclick="fire('bridge')">🔌 Electricity Bridging</button>
+  <button class="tbtn" onclick="clearAll()" style="border-color:#64748b;color:#64748b;background:transparent">Clear All</button>
+</div>
+<div class="toast-bar">Status: <span class="toast-text" id="toast-text">Ready — fire an event above or use the Transformer app</span></div>
+
+<div class="section-title" style="margin-top:24px">// Demo script for judges</div>
+<div class="steps-box">
+  <div class="step"><div class="step-n">1</div><div class="step-t"><strong>Open all 5 apps</strong> across devices. Laptop = App 01 (Transformer). Phone 1 = App 02 (Key). Phone 2 = App 03 (Resident). Phone 3 = App 04 (Eskom). Phone 4 / laptop tab = App 05 (Control Room).</div></div>
+  <div class="step"><div class="step-n">2</div><div class="step-t">Say: <em>"This is our IoT device reading sensor data live."</em> Show the Transformer app — voltage, current, temp fluctuating naturally.</div></div>
+  <div class="step"><div class="step-n">3</div><div class="step-t">Click <strong>"Transformer Blown"</strong>. Flip to App 04 — <em>"Watch Eskom get the alert right now — red pin on the map, GPS coordinates, full sensor data, auto-ticket."</em></div></div>
+  <div class="step"><div class="step-n">4</div><div class="step-t">Pause and say: <em>"That ticket was raised in zero seconds. Before a single resident picked up their phone."</em></div></div>
+  <div class="step"><div class="step-n">5</div><div class="step-t">Show Phone 2 (Resident app) — <em>"Residents get a clear notification. No need to call Eskom. The system already told them."</em></div></div>
+  <div class="step"><div class="step-n">6</div><div class="step-t">Click <strong>"Tamper — Danger Box"</strong>. <em>"This is a street-level box — copper thieves target these. Any touch fires an instant security alert. No RFID bypass exists. You touch it, Eskom knows."</em></div></div>
+  <div class="step"><div class="step-n">7</div><div class="step-t">Click <strong>"Electricity Bridging"</strong>. <em>"Current spikes to 67A — 3 times normal. Illegal bypass detected. The device cuts the supply at the danger box. R2.8 billion lost every year to this. GridGuard stops it."</em></div></div>
+  <div class="step"><div class="step-n">8</div><div class="step-t">Show App 02 (Key). Phone 1: tap RFID auth → send relay message. <em>"An Eskom technician uses an R15 RFID card. The device authenticates them. Residents get notified it's maintenance, not a fault."</em></div></div>
+  <div class="step"><div class="step-n">9</div><div class="step-t">Close: <em>"R1,200 prototype. R650 at scale. All components from Communica in Johannesburg. Hardware pays for itself the first time it catches a bypass."</em></div></div>
+</div>
+
+<script src="gridguard-engine.js"></script>
 <script>
-const ch = new BroadcastChannel('gridguard_v2');
-let selMsg = null, authActive = false, timerInt = null;
-
-function tapKey() {
-  if(authActive) return; authActive=true;
-  const z=document.getElementById('nfcz'), icon=document.getElementById('nfcicon'),
-        title=document.getElementById('nfctitle'), sub=document.getElementById('nfcsub');
-  z.classList.add('authed'); icon.textContent='✅';
-  title.textContent='AUTHENTICATED'; sub.textContent='Tech EK2847 · Access granted';
-  document.getElementById('authtimer').classList.add('show');
-  ch.postMessage({type:'RFID_AUTH',techId:'EK2847',time:Date.now()});
-  localStorage.setItem('gg_rfid',JSON.stringify({techId:'EK2847',time:Date.now()}));
-  showToast('✓ Auth broadcast to all devices');
-  let secs=30;
-  timerInt = setInterval(()=>{
-    secs--; document.getElementById('atval').textContent=secs;
-    document.getElementById('atbar').style.width=(secs/30*100)+'%';
-    if(secs<=0){
-      clearInterval(timerInt); authActive=false;
-      z.classList.remove('authed'); icon.textContent='📲';
-      title.textContent='TAP TO AUTHENTICATE'; sub.textContent='Hold near transformer NFC reader';
-      document.getElementById('authtimer').classList.remove('show');
-      document.getElementById('atbar').style.width='100%';
-    }
-  },1000);
+function fire(scenario) {
+  const ev = GridGuard.fireScenario(scenario);
+  if (ev) document.getElementById('toast-text').textContent =
+    '✓ Fired: ' + ev.alertType + ' — check all other open apps';
 }
-
-function selRelay(btn, msg) {
-  document.querySelectorAll('.relbtn').forEach(b=>b.classList.remove('sel'));
-  btn.classList.add('sel'); selMsg=msg;
-  document.getElementById('sendbtn').classList.add('show');
+function clearAll() {
+  GridGuard.clear();
+  document.getElementById('toast-text').textContent = 'History cleared';
 }
-
-function sendRelay() {
-  if(!selMsg) return;
-  const p={type:'RELAY_MESSAGE',message:selMsg,techId:'EK2847',transformerId:'TRF-SW04-A',timestamp:new Date().toTimeString().slice(0,8)};
-  ch.postMessage(p); localStorage.setItem('gg_relay',JSON.stringify(p));
-  showToast('✓ "'+selMsg+'" relayed to area');
-  document.querySelectorAll('.relbtn').forEach(b=>b.classList.remove('sel'));
-  document.getElementById('sendbtn').classList.remove('show'); selMsg=null;
-}
-
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
-
-function addIn(event){
-  const feed=document.getElementById('infeed');
-  const ph=feed.querySelector('[style*="Listening"]');if(ph)ph.remove();
-  const sm={CRITICAL:'crit','HIGH':'warn','MEDIUM':'warn','INFO':'info',crit:'crit',warn:'warn',sec:'sec',info:'info'};
-  const sev=sm[(event.severity||event.sev||'').toUpperCase()]||sm[(event.severity||event.sev||'').toLowerCase()]||'info';
-  const el=document.createElement('div');el.className='initem '+sev;
-  el.innerHTML=`<div class="itype ${sev}">${(event.alertType||event.type||'').replace(/_/g,' ')}</div><div class="idet">${event.message||event.msg||''}</div><div class="imeta">${event.transformerId||'TRF-SW04-A'} · ${event.timestamp||new Date().toTimeString().slice(0,8)}</div>`;
-  feed.insertBefore(el,feed.firstChild);
-  if((sev==='crit'||sev==='sec')&&navigator.vibrate)navigator.vibrate([200,100,200]);
-}
-
-ch.onmessage=e=>{if(e.data.type==='GRID_EVENT')addIn(e.data.event);};
-window.addEventListener('storage',e=>{
-  if(e.key==='gg_last'){try{addIn(JSON.parse(e.newValue));}catch(err){}}
-});
-try{const ex=JSON.parse(localStorage.getItem('gg_events')||'[]');ex.slice(0,3).reverse().forEach(addIn);}catch(e){}
 </script>
 </body>
 </html>
